@@ -1,0 +1,58 @@
+slots:
+  order_number:
+    type: text
+    label: 订单号
+    description: 用户要申请退款的订单号
+
+  refund_reason:
+    type: text
+    label: 退款原因
+    description: 用户申请退款的原因
+
+flows:
+  refund_request:
+    name: 退款申请
+    description: 收集订单号和退款原因，提交退款申请。
+    slots:
+      - order_number
+      - refund_reason
+    steps:
+      - id: start
+        type: start
+        description: 流程入口
+        next: ask_order_number
+
+      - id: ask_order_number
+        type: collect
+        description: 收集订单号
+        slot_name: order_number
+        template:
+          mode: static
+          text: "请告诉我你的订单号。"
+        next: ask_refund_reason
+
+      - id: ask_refund_reason
+        type: collect
+        description: 收集退款原因
+        slot_name: refund_reason
+        template:
+          mode: static
+          text: "请简单说一下退款原因。"
+        next:
+          - if: "slots.get('refund_reason')"
+            then: submit_refund
+          - else: ask_refund_reason
+
+      - id: submit_refund
+        type: action
+        description: 提交退款申请并回复用户
+        action: action_response
+        args:
+          mode: static
+          text: "好的，订单{{ slots.order_number }}的退款申请已提交。"
+        next: end
+
+      - id: end
+        type: end
+        description: 流程结束
+        next: []

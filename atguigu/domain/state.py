@@ -44,6 +44,7 @@ class SharedState:
 
     # 创建新session
     def create_session(self):
+        # 获取当前时间
         now = time.time()
         session = Session(
             session_id=str(uuid.uuid4()),
