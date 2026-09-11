@@ -1,0 +1,18 @@
+# 虚拟环境
+# 忽略名为 .venv 和 venv 的文件夹（末尾的 / 明确表示这是一个目录）
+.venv/
+venv/
+
+# Python 缓存
+# __pycache__ 是解释器自动生成的字节码缓存目录，无需入库
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 环境变量
+# 忽略根目录下名为 .env 的文件
+.env
+# *代表任意字符，忽略所有以.env.开头的文件，例如 .env.local、.env.production 等。
+.env.*
+# !表示“取反”。意思是：.env_example 是例外，不忽略它，允许它被 Git 追踪和提交。
+!.env.example
