@@ -62,5 +62,7 @@ class ClarifyReason(Enum):
 
 @dataclass
 class TurnPlanValidationResult:
+    # 校验成功 true  校验失败 false
     valid: bool
+    # 校验失败：失败原因
     reason: ClarifyReason | None = None
