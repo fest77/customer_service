@@ -28,6 +28,9 @@ class TaskResumed:
 class TaskCanceled:
     task: TaskRef
 
+# def  test() -> TaskCanceled | TaskResumed | TaskSwitched
+# def test1() -> TaskEvent
+
 TaskEvent: TypeAlias = (
         TaskStarted
         | TaskSwitched

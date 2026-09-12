@@ -107,7 +107,6 @@ class TurnPlannValidator:
                       paused.task_id
                     for paused in state.tasks.paused
                 ]
-
                 # 把当前活跃任务的任务id
                 if state.tasks.active:
                     all_paused_ids.append(state.tasks.active.task_id)
