@@ -7,7 +7,7 @@ from pathlib import Path
 
 from atguigu.domain.message import UserMessage, ProcessResult, MessageType, BotMessage
 from atguigu.domain.state import DialogueState, Turn
-from atguigu.plan.models import TurnPlan
+from atguigu.plan.models import TurnPlan, TurnPlanValidationResult
 from atguigu.plan.turn_plan import TurnPlanner
 from atguigu.plan.turn_plan_validation import TurnPlannValidator
 from atguigu.task.flow.loader import FlowLoader
@@ -87,21 +87,28 @@ class DialogueEngine:
         # 1 根据用户输入问题，调用TurnPlanner方法进行意图识别，返回意图识别结果
         # 调用LLM，使用参数数据构建提示词
         # 参数：用户问题   历史数据   流程数据   知识检索数据
-        turnPlan:TurnPlan= await self.turn_planner.plan(user_message,state,flow_catalog)
+        turnPlan:TurnPlan= await self.turn_planner.plan(
+                    user_message,state,flow_catalog)
 
         # 2 根据意图识别结果，调用TurnPlannValidator方法进行校验
+        validation_result:TurnPlanValidationResult = (
+            self.turn_plann_validator.validation(turnPlan,state,flow_catalog))
 
         # 3 校验没有通过，执行反问澄清组件
+        if not validation_result.valid:
+            # 反问澄清组件
+            pass
 
         # 3 校验通过，根据意图识别结果执行不同轨道
-        # 任务流程组件
-        # 知识检索组件
-        # 闲聊组件
-
-        # 4 不同轨道返回结果
-
-
-        pass
+        if turnPlan.task:
+            # 任务流程组件
+            pass
+        if turnPlan.knowledge:
+            # 知识检索组件
+            pass
+        else:
+            # 闲聊组件
+            pass
 
     # 3 处理对象类型消息
     async def _execute_object_message(self):

@@ -1,6 +1,9 @@
 """
 这个模块用户问题意图识别
 """
+import json
+from dataclasses import asdict
+
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 
@@ -9,7 +12,7 @@ from atguigu.domain.state import DialogueState
 from atguigu.plan.models import TurnPlan
 from atguigu.prompts.history_builder import HistoryBuilder
 from atguigu.prompts.loader import load_prompt
-from atguigu.task.flow.models import FlowCatalog
+from atguigu.task.flow.models import FlowCatalog, Flow
 from atguigu.utils.llm_client import llm
 
 
@@ -32,15 +35,37 @@ class TurnPlanner:
         # 创建调用链
         chain = prompt | llm | JsonOutputParser()
 
-        # todo 获取提示词需要数据
+        # 获取提示词需要数据
+        # 用户消息
+        user_message = HistoryBuilder.render_user_message(user_message)
+        # 最近一次session里面多轮记录
+        turns = state.shared.sessions[-1].turns
+        conversation_history = HistoryBuilder.build(turns)
+        # 对象类型消息
+        focused_object_json = json.dumps(asdict(state.shared.focused_object)
+                                 if state.shared.focused_object else None)
+        # 任务流程特有数据
+        task_state_json = json.dumps(asdict(state.tasks)
+                                     if state.tasks else None)
+        # flows_json yaml文件流程数据
+        ## 把yaml文件流程数据flow_catalog，不包含步骤数据
+        flows:dict[str, Flow] = flow_catalog.flows
+        # flows字典遍历，得到每个Flow，去掉每个Flow里面steps
+        flows_json = [
+            {
+              k:v  for k,v in asdict(flow).items()
+                if k != 'steps'
+            }
+            for flow in flows.values()
+        ]
         # 执行invoke，得到结果
-        res = chain.ainvoke({
-            "user_message": HistoryBuilder.render_user_message(user_message),
-            "flows_json": flow_catalog,
-            "knowledge_intents_json":{},
-            "task_state_json":state,
-            "focused_object_json":{},
-            "conversation_history":state
+        res = await chain.ainvoke({
+            "user_message": user_message,
+            "flows_json": flows_json,
+            "knowledge_intents_json":{}, # todo 后面完善
+            "task_state_json":task_state_json,
+            "focused_object_json":focused_object_json,
+            "conversation_history":conversation_history
         })
 
         # LLM返回json转换TurnPlan
