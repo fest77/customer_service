@@ -33,7 +33,7 @@ class Session:
 # 对象类型消息
 @dataclass
 class FocusedObject:
-    type:str
+    type:str #  order   product
     id:str
     title:str | None=None
     attributes:dict=field(default_factory=dict)

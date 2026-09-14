@@ -7,9 +7,10 @@ class ResponseMode(Enum):
     STATIC = "static"
 
     # 基于text内容，调用llm，把text修改返回
-    # REPHRASE = "rephrase"
+    REPHRASE = "rephrase"
+
     # 直接llm生成内容 返回
-    # GENERATE = "generate"
+    GENERATE = "generate"
 
 
 @dataclass

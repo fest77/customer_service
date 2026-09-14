@@ -7,6 +7,9 @@ from atguigu.plan.turn_plan import TurnPlanner
 from atguigu.plan.turn_plan_validation import TurnPlannValidator
 from atguigu.repository.dialogue_repository import DialogueRepository
 from atguigu.service.dialogue_service import DialogueService
+from atguigu.task.command.processor import CommandProcessor
+from atguigu.task.handler import TaskHandler
+from atguigu.task.lifecycle.responder import TaskLifecycleResponder
 from atguigu.utils import database
 
 """
@@ -31,9 +34,14 @@ async def get_repository(
 async def get_engine():
     turn_planner = TurnPlanner()
     turn_plann_validator = TurnPlannValidator()
+    task_handler = TaskHandler(
+        command_processor=CommandProcessor(),
+        task_lifecycle=TaskLifecycleResponder()
+    )
     return DialogueEngine(
         turn_planner=turn_planner,
-        turn_plann_validator=turn_plann_validator
+        turn_plann_validator=turn_plann_validator,
+        task_handler=task_handler
     )
 
 async def get_dialogue_service(
