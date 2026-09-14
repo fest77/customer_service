@@ -12,14 +12,17 @@ from atguigu.plan.turn_plan import TurnPlanner
 from atguigu.plan.turn_plan_validation import TurnPlannValidator
 from atguigu.task.flow.loader import FlowLoader
 from atguigu.task.flow.models import FlowCatalog
+from atguigu.task.handler import TaskHandler
 
 
 class DialogueEngine:
 
     def __init__(self,turn_planner:TurnPlanner,
-                 turn_plann_validator:TurnPlannValidator):
+                 turn_plann_validator:TurnPlannValidator,
+                 task_handler:TaskHandler):
         self.turn_planner = turn_planner
         self.turn_plann_validator = turn_plann_validator
+        self.task_handler = task_handler
 
     async def process_message(self,
                 state:DialogueState,
@@ -101,8 +104,15 @@ class DialogueEngine:
 
         # 3 校验通过，根据意图识别结果执行不同轨道
         if turnPlan.task:
-            # 任务流程组件
-            pass
+            # 调用任务流程组件推进步骤实现
+            result = await self.task_handler.handle(
+                commands=turnPlan.task.commands,
+                state=state,
+                flows=flow_catalog,
+                user_message=user_message,
+            )
+            return result
+
         if turnPlan.knowledge:
             # 知识检索组件
             pass

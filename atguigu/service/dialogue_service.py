@@ -26,7 +26,8 @@ class DialogueService:
         state:DialogueState= await self.repository.load_state(sender_id)
 
         # 2 根据查询历史记录 + 用户问题 调用engine层处理用户消息
-        process_result:ProcessResult = await self.engine.process_message(state,user_message)
+        process_result:ProcessResult = \
+            await self.engine.process_message(state,user_message)
 
         # 3 把当前这一次对话，调用repository层保存数据库里面
         await self.repository.save_state(state)
