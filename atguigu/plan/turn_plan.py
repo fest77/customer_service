@@ -65,6 +65,9 @@ class TurnPlanner:
             "knowledge_intents_json":{}, # todo 后面完善
             "task_state_json":task_state_json,
             "focused_object_json":focused_object_json,
+            # 幻觉 ： 1 提示词边界约定不严谨
+            #        2 构建提示词数据有很多干扰数据
+            #        3 模型本身能力很弱
             "conversation_history":conversation_history
         })
 

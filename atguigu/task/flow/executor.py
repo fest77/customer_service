@@ -22,8 +22,7 @@ class FlowExecutor:
 
     async def run_step(self,
            state: DialogueState,
-        flows: FlowCatalog,
-         user_message:UserMessage) -> list[BotMessage]:
+        flows: FlowCatalog) -> list[BotMessage]:
         bot_messages:list[BotMessage] = []
         # 判断是否存在活跃任务
         if not state.tasks.active:

@@ -5,6 +5,8 @@ import time
 import uuid
 from pathlib import Path
 
+from atguigu.chitchat.chit_chat import ChitChat
+from atguigu.clarify.clarify_response import ClarifyResponse
 from atguigu.domain.message import UserMessage, ProcessResult, MessageType, BotMessage
 from atguigu.domain.state import DialogueState, Turn
 from atguigu.plan.models import TurnPlan, TurnPlanValidationResult
@@ -18,10 +20,14 @@ from atguigu.task.handler import TaskHandler
 class DialogueEngine:
     def __init__(self,turn_planner:TurnPlanner,
                  turn_plann_validator:TurnPlannValidator,
-                 task_handler:TaskHandler):
+                 task_handler:TaskHandler,
+                 clarif_response:ClarifyResponse,
+                 chit_chat:ChitChat):
         self.turn_planner = turn_planner
         self.turn_plann_validator = turn_plann_validator
         self.task_handler = task_handler
+        self.clarif_response = clarif_response
+        self.chit_chat = chit_chat
 
     async def process_message(self,
                 state:DialogueState,
@@ -99,7 +105,11 @@ class DialogueEngine:
         # 3 校验没有通过，执行反问澄清组件
         if not validation_result.valid:
             # 反问澄清组件
-            pass
+            return await self.clarif_response.responder(
+                state=state,
+                user_message=user_message,
+                reason=validation_result.reason,
+            )
 
         # 3 校验通过，根据意图识别结果执行不同轨道
         if turnPlan.task:
@@ -117,7 +127,11 @@ class DialogueEngine:
             pass
         else:
             # 闲聊组件
-            pass
+            res = await self.chit_chat.handle(
+                user_message=user_message,
+                state=state,
+            )
+            return res
 
     # 3 处理对象类型消息
     async def _execute_object_message(self):
