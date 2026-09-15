@@ -16,7 +16,6 @@ from atguigu.task.handler import TaskHandler
 
 
 class DialogueEngine:
-
     def __init__(self,turn_planner:TurnPlanner,
                  turn_plann_validator:TurnPlannValidator,
                  task_handler:TaskHandler):

@@ -5,6 +5,8 @@
 from atguigu.domain.message import BotMessage, UserMessage
 from atguigu.domain.state import DialogueState
 from atguigu.plan.models import TaskTurnPlan
+from atguigu.task.action.base import ActionCall, ActionResult
+from atguigu.task.action.runner import ActionRunner
 from atguigu.task.flow.links import FlowStepLink, ConditionalLink, FallbackLink
 from atguigu.task.flow.models import FlowCatalog, Flow
 from atguigu.task.flow.steps import FlowStep, StartFlowStep, ResponseFlowStep, CollectSlotStep, ActionFlowStep, \
@@ -13,8 +15,10 @@ from atguigu.task.response.renderer import ResponseTemplateRender
 
 
 class FlowExecutor:
-    def __init__(self, response_render:ResponseTemplateRender):
+    def __init__(self, response_render:ResponseTemplateRender,
+                 action_runner:ActionRunner):
         self.response_render = response_render
+        self.action_runner = action_runner
 
     async def run_step(self,
            state: DialogueState,
@@ -91,7 +95,26 @@ class FlowExecutor:
                 * 执行具体业务方法，调用中台系统接口实现具体功能
             """
             if isinstance(step, ActionFlowStep):
-                pass
+                #1 获取action步骤里面action属性值
+                # action: action_lookup_order_status
+                action_name = step.action
+                action_call = ActionCall(
+                    action_name=action_name,
+                )
+
+                #2 调用ActionRunner方法实现
+                action_result:ActionResult = await self.action_runner.run(
+                    state=state,
+                    action_call=action_call
+                )
+
+                #3 把远程调用返回结果放到槽位里面
+                # 为了后面从槽位获取数据渲染
+                state.tasks.active.slots.update(action_result.slot_updates)
+
+                #4 推进到下一步
+                self._run_next_step(step,state)
+                continue
 
             """
                 EndFlowStep
