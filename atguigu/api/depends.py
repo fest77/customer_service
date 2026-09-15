@@ -2,14 +2,22 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from atguigu import repository
+from atguigu.chitchat import chit_chat
+from atguigu.chitchat.chit_chat import ChitChat
+from atguigu.clarify.clarify_response import ClarifyResponse
 from atguigu.engine.dialogue_engine import DialogueEngine
 from atguigu.plan.turn_plan import TurnPlanner
 from atguigu.plan.turn_plan_validation import TurnPlannValidator
 from atguigu.repository.dialogue_repository import DialogueRepository
 from atguigu.service.dialogue_service import DialogueService
+from atguigu.task.action.builder import registry_action
+from atguigu.task.action.registry import ActionRegistry
+from atguigu.task.action.runner import ActionRunner
 from atguigu.task.command.processor import CommandProcessor
+from atguigu.task.flow.executor import FlowExecutor
 from atguigu.task.handler import TaskHandler
 from atguigu.task.lifecycle.responder import TaskLifecycleResponder
+from atguigu.task.response.renderer import ResponseTemplateRender
 from atguigu.utils import database
 
 """
@@ -34,14 +42,35 @@ async def get_repository(
 async def get_engine():
     turn_planner = TurnPlanner()
     turn_plann_validator = TurnPlannValidator()
+
+    # registry
+    registry = ActionRegistry()
+    # 调用方法注册action对象到字典里面
+    registry_action(registry)
+    # action_runner
+    action_runner = ActionRunner(
+        registry = registry
+    )
+    # flow_executor
+    flow_executor = FlowExecutor(
+        response_render = ResponseTemplateRender(),
+        action_runner = action_runner
+    )
+
     task_handler = TaskHandler(
         command_processor=CommandProcessor(),
-        task_lifecycle=TaskLifecycleResponder()
+        task_lifecycle=TaskLifecycleResponder(),
+        flow_executor = flow_executor
     )
+
+    clarif_response = ClarifyResponse()
+    chit_chat=ChitChat()
     return DialogueEngine(
         turn_planner=turn_planner,
         turn_plann_validator=turn_plann_validator,
-        task_handler=task_handler
+        task_handler=task_handler,
+        clarif_response=clarif_response,
+        chit_chat=chit_chat
     )
 
 async def get_dialogue_service(

@@ -10,6 +10,7 @@ from atguigu.domain.message import BotMessage, UserMessage
 from atguigu.domain.state import DialogueState
 from atguigu.task.command.models import Command
 from atguigu.task.command.processor import CommandProcessor
+from atguigu.task.flow.executor import FlowExecutor
 from atguigu.task.flow.models import FlowCatalog
 from atguigu.task.lifecycle.models import TaskEvent
 from atguigu.task.lifecycle.responder import TaskLifecycleResponder
@@ -18,9 +19,11 @@ from atguigu.task.lifecycle.responder import TaskLifecycleResponder
 class TaskHandler:
     # 注入
     def __init__(self,command_processor:CommandProcessor,
-                 task_lifecycle:TaskLifecycleResponder):
+                 task_lifecycle:TaskLifecycleResponder,
+                 flow_executor: FlowExecutor):
         self.command_processor = command_processor
         self.task_lifecycle = task_lifecycle
+        self.flow_executor = flow_executor
 
     # 调用的方法
     # commands: 意图识别结果列表
@@ -42,6 +45,10 @@ class TaskHandler:
             flow_catalog=flows,
         )
 
-        # todo 3 调用FlowEXecutor推进步骤实现
-
+        # 3 调用FlowEXecutor推进步骤实现
+        bot_messages:list[BotMessage] = await self.flow_executor.run_step(
+            state=state,
+            flows=flows,
+        )
+        messages.extend(bot_messages)
         return messages

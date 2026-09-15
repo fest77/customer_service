@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 
 from atguigu.domain.message import UserMessage, BotMessage
-from atguigu.task.lifecycle.models import TaskEvent, TaskRef, TaskSwitched, TaskStarted, TaskCanceled
+from atguigu.task.lifecycle.models import TaskEvent, TaskRef, TaskSwitched, TaskStarted, TaskCanceled, TaskResumed
 
 
 # 一轮对话，一个问题对应一个或者多个回答
@@ -173,6 +173,7 @@ class TaskState:
             )
         else:# 如果没有直接把恢复任务变成活跃任务
             self.active = resume_task
+            # TaskResumed
             return TaskStarted(
                 task=resume_task_ref
             )
