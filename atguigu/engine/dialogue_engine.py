@@ -3,6 +3,7 @@
 """
 import time
 import uuid
+from dataclasses import asdict
 from pathlib import Path
 
 from atguigu.chitchat.chit_chat import ChitChat
@@ -133,8 +134,6 @@ class DialogueEngine:
             )
             return res
 
-    # 3 处理对象类型消息
+    # todo 3 处理对象类型消息
     async def _execute_object_message(self):
         pass
-
-
