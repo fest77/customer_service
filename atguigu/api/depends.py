@@ -6,6 +6,10 @@ from atguigu.chitchat import chit_chat
 from atguigu.chitchat.chit_chat import ChitChat
 from atguigu.clarify.clarify_response import ClarifyResponse
 from atguigu.engine.dialogue_engine import DialogueEngine
+from atguigu.knowledge.hanlder import KnowledgeHanlder
+from atguigu.knowledge.provider import ProductProvider, RAGProvider, ApiOrderProvider, FAQProvider
+from atguigu.knowledge.registry import KnowledgeProviderRegistry
+from atguigu.knowledge.responder import KnowledgeResponseder
 from atguigu.plan.turn_plan import TurnPlanner
 from atguigu.plan.turn_plan_validation import TurnPlannValidator
 from atguigu.repository.dialogue_repository import DialogueRepository
@@ -65,12 +69,27 @@ async def get_engine():
 
     clarif_response = ClarifyResponse()
     chit_chat=ChitChat()
+
+    knowledge_registry=KnowledgeProviderRegistry([
+            ProductProvider(),
+            ApiOrderProvider(),
+            FAQProvider(),
+            RAGProvider()
+        ]
+    )
+
+    knowledge_handler = KnowledgeHanlder(
+        know_responseder=KnowledgeResponseder(),
+        knowledge_registry=knowledge_registry
+    )
+
     return DialogueEngine(
         turn_planner=turn_planner,
         turn_plann_validator=turn_plann_validator,
         task_handler=task_handler,
         clarif_response=clarif_response,
-        chit_chat=chit_chat
+        chit_chat=chit_chat,
+        knowledge_handler=knowledge_handler
     )
 
 async def get_dialogue_service(

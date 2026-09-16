@@ -32,7 +32,7 @@ class ProductProvider(KnowledgeProvider):
     provider_id = "api.product"
     # 实现抽象方法
     async def provide(self,
-             state:DialogueState,)->list[KnowledgeChunk]:
+             state:DialogueState,user_message: UserMessage)->list[KnowledgeChunk]:
         # 获取商品id，从对象类型消息获取到
         focused_object = state.shared.focused_object
         if focused_object is None:
@@ -92,7 +92,7 @@ class ApiOrderProvider(KnowledgeProvider):
 class FAQProvider(KnowledgeProvider):
     provider_id = 'faq.default'
 
-    async def retrieve(self,
+    async def provide(self,
                        user_message: UserMessage,
                        state: DialogueState, ) -> list[KnowledgeChunk]:
         # TODO
@@ -108,7 +108,7 @@ class FAQProvider(KnowledgeProvider):
 class RAGProvider(KnowledgeProvider):
     provider_id = 'rag.default'
 
-    async def retrieve(self,
+    async def provide(self,
                        user_message: UserMessage,
                        state: DialogueState, ) -> list[KnowledgeChunk]:
         # RAG知识库查询知识接口（TODO）
