@@ -9,6 +9,7 @@ from langchain_core.prompts import PromptTemplate
 
 from atguigu.domain.message import UserMessage
 from atguigu.domain.state import DialogueState
+from atguigu.knowledge.intents import KNOWLEDGE_INTENTS
 from atguigu.plan.models import TurnPlan
 from atguigu.prompts.history_builder import HistoryBuilder
 from atguigu.prompts.loader import load_prompt
@@ -58,11 +59,22 @@ class TurnPlanner:
             }
             for flow in flows.values()
         ]
+        # 知识检索范围数据
+        knowledge_intents_json = json.dumps(
+            [
+                {
+                    "id":intent.id,
+                    "description":intent.description
+                }
+                for intent in KNOWLEDGE_INTENTS.values()
+            ]
+        )
+
         # 执行invoke，得到结果
         res = await chain.ainvoke({
             "user_message": user_message,
             "flows_json": flows_json,
-            "knowledge_intents_json":{}, # todo 后面完善
+            "knowledge_intents_json":knowledge_intents_json,
             "task_state_json":task_state_json,
             "focused_object_json":focused_object_json,
             # 幻觉 ： 1 提示词边界约定不严谨
