@@ -5,8 +5,9 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 
 from atguigu.api.depends import get_dialogue_service
-from atguigu.api.schemas import ChatRequest, ChatResponse, ChatMessage, ChatObject
+from atguigu.api.schemas import ChatRequest, ChatResponse, ChatMessage, ChatObject, HistoryResponse, HistoryMessage
 from atguigu.domain.message import UserMessage, ProcessResult, MessageType, MessageObject
+from atguigu.domain.state import DialogueState
 from atguigu.service.dialogue_service import DialogueService
 
 chat_router = APIRouter()
@@ -65,4 +66,45 @@ def _build_chat_response(process_result:ProcessResult)->ChatResponse:
             )
             for bot_message in process_result.messages
         ]
+    )
+
+# 根据用户id查询历史记录接口
+@chat_router.get("/api/chat/history")
+async def chat(sender_id:str,
+        service:DialogueService=Depends(get_dialogue_service))->HistoryResponse:
+    # 根据用户id，调用service方法实现
+    state:DialogueState = await service.get_history_info(sender_id)
+    # 把查询历史记录封装HistoryResponse
+    messages:list[HistoryMessage] = []
+
+    # 获取历史记录用户问题 和对应回答
+    # 遍历所有session，得到每个session会话
+    for session in state.shared.sessions:
+        # 从每个session获取turns
+        # turns遍历得到每个turn
+        for turn in session.turns:
+            # 用户提问
+            messages.append(HistoryMessage(
+                role="user",
+                text=turn.user_message.text,
+                object=ChatObject(
+                    **asdict(turn.user_message.object)
+                ) if turn.user_message.object else None,
+            ))
+
+            # 客服回复
+            messages.extend(
+                [
+                    HistoryMessage(
+                        role="bot",
+                        text=message.text,
+                        object=None
+                    )
+                    for message in turn.bot_message
+                ]
+            )
+
+    return HistoryResponse(
+        sender_id=sender_id,
+        messages=messages
     )
