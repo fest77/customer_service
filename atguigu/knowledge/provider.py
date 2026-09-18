@@ -74,8 +74,8 @@ class ApiOrderProvider(KnowledgeProvider):
         )
 
         result = json.dumps({
-            "order_info":order_info,
-            "logistics_info":logistics_info,
+            "order_info":order_info.json().get('data','未知'),
+            "logistics_info":logistics_info.json().get('data','未知'),
             },ensure_ascii=False
          )
         return [KnowledgeChunk(content=result)]

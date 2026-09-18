@@ -42,3 +42,6 @@ class DialogueService:
         #         object=None
         #     )]
         # )
+
+    async def get_history_info(self, sender_id):
+        return await self.repository.load_state(sender_id)
