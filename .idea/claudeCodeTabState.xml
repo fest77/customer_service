@@ -6,10 +6,10 @@
         <entry key="0">
           <value>
             <TabSessionState>
-              <option name="provider" value="codex" />
-              <option name="sessionId" value="01a0a335-be5d-7d32-8c7a-44ee53f08415" />
+              <option name="provider" value="claude" />
+              <option name="sessionId" value="e69ecc33-17f2-4f42-a05e-8804ccc903dd" />
               <option name="cwd" value="D:\A_Py_Java\pyFile\customer_service" />
-              <option name="model" value="deepseek-flash" />
+              <option name="model" value="claude-haiku-4-5" />
               <option name="permissionMode" value="default" />
             </TabSessionState>
           </value>
