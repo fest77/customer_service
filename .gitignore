@@ -8,11 +8,46 @@ venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
 
-# 环境变量
+# ========== 敏感配置：环境变量与密钥（重点） ==========
 # 忽略根目录下名为 .env 的文件
 .env
+# 忽略任意层级目录下的 .env，防止子目录中的配置被误提交
+**/.env
 # *代表任意字符，忽略所有以.env.开头的文件，例如 .env.local、.env.production 等。
 .env.*
 # !表示“取反”。意思是：.env_example 是例外，不忽略它，允许它被 Git 追踪和提交。
 !.env.example
+
+# 其他常见环境变量/密钥文件
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+secrets.*
+credentials.*
+*.secret
+
+# 流程配置的本地覆盖文件（可能写入测试账号、密钥等）
+flow_config/local_*.yml
+flow_config/*.local.yml
+
+# ========== IDE / 编辑器本地文件 ==========
+# .idea 内含本地绝对路径、SDK 配置、Claude 会话状态（sessionId）等个人信息
+.idea/
+.vscode/
+*.iml
+*.swp
+*~
+
+# ========== 日志与本地数据 ==========
+*.log
+logs/
